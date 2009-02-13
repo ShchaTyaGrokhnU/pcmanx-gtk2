@@ -103,6 +103,12 @@ CTermCharAttr::IsSameAttr(short val2)
 		CTermCharAttr* pAttr = (CTermCharAttr*)&val2;
 		pAttr->m_CharSet = m_CharSet;
 		pAttr->m_NeedUpdate = m_NeedUpdate;
+		pAttr->m_HyperLink  = m_HyperLink; 
+#ifdef USE_IPLOOKUP		
+		pAttr->m_IpAddr  = m_IpAddr;
+#endif
+		//why this g_assert(or g_log) has side effects?
+		g_assert(pAttr->AsShort() == val2);
 		return val2 == this->AsShort();
 }
 bool
@@ -777,6 +783,11 @@ void CTermData::UpdateDisplay()
 	m_NeedDelayedUpdate = false;
 }
 
+/**
+ * if force is true then update View  even if  term data has not changed
+ * it's necessary when user temporarily changes site's encoding.
+ * default is false.
+ */
 void CTermData::DoUpdateDisplay()
 {
 	m_WaitUpdateDisplay = false;
@@ -811,6 +822,7 @@ void CTermData::DoUpdateDisplay()
 		}
 	}
 	m_pView->UpdateCaretPos();
+	m_pView->AfterUpdate();
 	m_pView->m_Caret.Show();
 }
 

@@ -67,6 +67,7 @@ public:
 	static void updateBBSListHandler(int nSignalNumber);
 #endif
 	static void pasteFromClipboard(GtkMenuItem* mitem, CMainFrame* _this);
+	static void OnChangeEncoding(GtkRadioAction* action,GtkRadioAction* current,CMainFrame* _this);
 	static void OnCloseCon(GtkMenuItem* mitem, CMainFrame* _this);
 	static void OnCopy(GtkMenuItem* mitem, CMainFrame* _this);
 	static void OnCopyWithColor(GtkMenuItem* mitem, CMainFrame* _this);
@@ -131,6 +132,21 @@ public:
 	  return gtk_statusbar_pop(GTK_STATUSBAR(m_Statusbar), context_id);
 	}
 
+#ifdef USE_IPLOOKUP
+	inline void PopTip(int x,int y, const char *text)
+	{
+	  GtkRequisition requisition;
+	  gtk_label_set_text(GTK_LABEL(m_TipLabel),text);
+	  gtk_widget_size_request(m_TipPopup,&requisition);
+	  gtk_window_resize(GTK_WINDOW(m_TipPopup),requisition.width,requisition.height);
+	  gtk_window_move(GTK_WINDOW(m_TipPopup),x,y);
+	  gtk_widget_show(m_TipPopup);
+	}
+
+	inline void HideTip(){if(GTK_WIDGET_VISIBLE(m_TipPopup))gtk_widget_hide(m_TipPopup);}	
+    inline void ShowTip(){if(!GTK_WIDGET_VISIBLE(m_TipPopup))gtk_widget_show(m_TipPopup);}
+#endif
+
 protected:
 	void MakeUI();
 	static void OnNewCon(GtkMenuItem* mitem, CMainFrame* _this);
@@ -148,6 +164,8 @@ protected:
 	void FlashWindow( bool flash );
 	static gboolean OnURLEntryKillFocus(GtkWidget* entry, GdkEventFocus* evt, CMainFrame* _this);
 
+	static GtkRadioActionEntry encoding_entries[];
+	void UpdateEncodingRadio();
 #ifdef USE_NANCY
 	static GtkRadioActionEntry cur_bot_entries[];
 	static GtkRadioActionEntry all_bot_entries[];
@@ -196,6 +214,11 @@ protected:
 	GtkTooltips* m_Tooltips;
 	GtkLabel* m_StatusBarTime;
 
+#ifdef USE_IPLOOKUP
+	GtkWidget* m_TipPopup; //popup window to show ip location information
+	GtkWidget* m_TipLabel;//the actual label to hold ip location information
+#endif
+
 #ifdef USE_NANCY
 	GtkLabel* m_StatusBarBotState;
 	GtkRadioMenuItem* m_DisableCurBotRadio;
@@ -203,6 +226,9 @@ protected:
 	GtkRadioMenuItem* m_DisableAllBotRadio;
 	GtkRadioMenuItem* m_AllBotNancyRadio;
 #endif
+	GtkRadioMenuItem* m_EncodingRadioBig5;
+	GtkRadioMenuItem* m_EncodingRadioGBK;
+	GtkRadioMenuItem* m_EncodingRadioUTF8;
 
 	static bool g_bIsUpateHandlerExisted;
 	static bool g_bUpdateingBBSList;

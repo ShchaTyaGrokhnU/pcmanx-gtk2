@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2005 PCMan <pcman.tw@gmail.com>
+ * Copyright (c) 2005 PCMan <darren.hoo@gmail.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,46 +12,38 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software Foundation,
+ * along with this program; if not, write to the Free Software Foundation, 
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+#ifndef PROXYPAGE_H
+#define PROXYPAGE_H
 
-#ifndef SITEDLG_H
-#define SITEDLG_H
+#include "widget.h"
+#include <glib/gi18n.h>
 
-#ifdef __GNUG__
-  #pragma interface "sitedlg.h"
-#endif
-
-#include "dialog.h"
-#include "site.h"
-
-#ifdef USE_PROXY
-#include "proxypage.h"
-#endif
-
-class CSitePage;
-class CNotebook;
-class CAutoLoginPage;
+class CSite;
 
 /**
-@author PCMan
-*/
-class CSiteDlg : public CDialog
+ * CProxyPage
+ */
+class CProxyPage : public CWidget
 {
 public:
-    CSiteDlg(CWidget* parent, const char* title, CSite& site);
+    CProxyPage(CSite& site);
+
+    ~CProxyPage();
     bool OnOK();
 
-public:
-    CSite m_Site;
-	CSitePage* m_pSitePage;
-	CAutoLoginPage* m_pAutoLoginPage;
-	CNotebook* m_pNotebook;
-#ifdef USE_PROXY
-	CProxyPage* m_pProxyPage;
-#endif
+	GtkWidget *ProxyPage;	
+	GtkWidget *m_ProxyType;
+	GtkWidget *m_ProxyAddr;
+	GtkWidget *m_ProxyPort;
+	GtkWidget *m_ProxyUser;
+	GtkWidget *m_ProxyPass;
 
+	CSite& m_Site;
 };
 
 #endif
+
+

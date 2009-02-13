@@ -64,10 +64,11 @@ bool CTelnetView::m_bWgetFiles = false;
 
 static GtkWidget* input_menu_item = NULL;
 
+
 void CTelnetView::OnTextInput(const gchar* text)
 {
 	gsize l;
-	gchar* _text = g_convert(text, strlen(text), GetCon()->m_Site.m_Encoding.c_str(), "UTF-8", NULL, &l, NULL);
+	gchar* _text = g_convert(text, strlen(text), GetCon()->GetEncoding().c_str(), "UTF-8", NULL, &l, NULL);
 	if( _text )
 	{
 		((CTelnetCon*)m_pTermData)->Send(_text, l);
@@ -95,9 +96,32 @@ static int DrawCharWrapper( int row, int col, void *data )
 	return tv->DrawChar( row, col );
 }
 
+/**
+ * reset cursor state and clear iplookup area
+ * after Term view got updated  
+ */
+void CTelnetView::AfterUpdate(){
+#ifdef USE_MOUSE
+    if(m_CursorState !=0)
+	{
+	   gdk_window_set_cursor(m_Widget->window, NULL);
+	   m_CursorState=0;
+	}
+#endif
+
+#if defined(USE_IPLOOKUP)  && !defined(MOZ_PLUGIN)
+	m_ipLookupArea.x = 0; m_ipLookupArea.y = 0; 
+	m_ipLookupArea.width = 0; m_ipLookupArea.height = 0; 
+	m_pParentFrame->HideTip();
+#endif
+}
+
 bool CTelnetView::OnKeyDown(GdkEventKey* evt)
 {
-	INFO("CTelnetView::OnKeyDown (keyval=0x%x, state=0x%x)", evt->keyval, evt->state);
+#if defined(USE_IPLOOKUP)  && !defined(MOZ_PLUGIN)
+	m_pParentFrame->HideTip();
+#endif
+    INFO("CTelnetView::OnKeyDown (keyval=0x%x, state=0x%x)", evt->keyval, evt->state);
 	CTermCharAttr* pAttr = m_pTermData->GetLineAttr(
 			m_pTermData->m_Screen[m_pTermData->m_CaretPos.y] );
 	int x = m_pTermData->m_CaretPos.x;
@@ -279,40 +303,7 @@ void CTelnetView::OnMouseMove(GdkEventMotion* evt)
   {
     CTermCharAttr* pattr = m_pTermData->GetLineAttr(m_pTermData->m_Screen[ y ]);
 
-#if defined(USE_IPLOOKUP)
-    // Update status bar for ip address lookup.
-    m_pParentFrame->PopStatus("show ip");
-    if( x > 0 && x < m_pTermData->m_ColsPerPage && pattr[x].IsIpAddr() )
-    {
-      int ip_beg, ip_end;
-      for (ip_beg = x; ip_beg >= 0 && pattr[ip_beg].IsIpAddr(); ip_beg--);
-      ip_beg++;
-      for (ip_end = x; ip_end < m_pTermData->m_ColsPerPage && pattr[ip_end].IsIpAddr(); ip_end++);
-      string ipstr(m_pTermData->m_Screen[y] + ip_beg, ip_end - ip_beg);
-      string::iterator star = find(ipstr.begin(), ipstr.end(), '*');
-      while (star != ipstr.end())
-      {
-	*star = '0';
-	star = find(star + 1, ipstr.end(), '*');
-      }
 
-      char buf[255];
-      if (m_pIpSeeker)
-      {
-	seeker_lookup(m_pIpSeeker, ipstr2int(ipstr.c_str()), buf, sizeof(buf));
-	gchar *location = g_convert_with_fallback(buf, -1, "utf8", "gbk", "?", NULL, NULL, NULL);
-	snprintf(buf, sizeof(buf), "%s %s (%s)"
-	    , _("Detected IP address:"), ipstr.c_str(), location);
-	g_free(location);
-      }
-      else
-	snprintf(buf, sizeof(buf), "%s %s (%s)"
-	    , _("Detected IP address:"), ipstr.c_str()
-	    , _("Download qqwry.dat to get IP location lookup"));
-
-      m_pParentFrame->PushStatus("show ip", buf);
-    }
-#endif // defined(USE_IPLOOKUP)
 
 #if defined(USE_MOUSE)
     if ( AppConfig.MouseSupport == true )
@@ -385,6 +376,75 @@ void CTelnetView::OnMouseMove(GdkEventMotion* evt)
       m_CursorState=0;
     }
 #endif // defined(USE_MOUSE)
+
+#if defined(USE_IPLOOKUP)
+    if( x > 0 && x < m_pTermData->m_ColsPerPage && pattr[x].IsIpAddr() )
+	  {
+		gdk_window_set_cursor(m_Widget->window, NULL);m_CursorState=0;
+		if (y == m_ipLookupArea.y &&
+			x >= m_ipLookupArea.x && 
+			x <= m_ipLookupArea.x + m_ipLookupArea.width)
+		  {
+			/* the pointer is still within the last ip address area,we don't have to lookup again
+			 * just show the popup window if necessary
+			 */
+			m_pParentFrame->ShowTip();
+		  }
+		else
+		  {
+			int ip_beg, ip_end;
+			for (ip_beg = x; ip_beg >= 0 && pattr[ip_beg].IsIpAddr(); ip_beg--);
+			ip_beg++;
+			for (ip_end = x; ip_end < m_pTermData->m_ColsPerPage && pattr[ip_end].IsIpAddr(); ip_end++);
+			string ipstr(m_pTermData->m_Screen[y] + ip_beg, ip_end - ip_beg);
+			string::iterator star = find(ipstr.begin(), ipstr.end(), '*');
+			while (star != ipstr.end())
+			  {
+				*star = '0';
+				star = find(star + 1, ipstr.end(), '*');
+			  }
+
+			m_ipLookupArea.x = ip_beg;
+			m_ipLookupArea.y = y;
+			m_ipLookupArea.width = ip_end - ip_beg;
+
+			char buf[255];
+			if (m_pIpSeeker)
+			  {
+				seeker_lookup(m_pIpSeeker, ipstr2int(ipstr.c_str()), buf, sizeof(buf));
+				gchar *location = g_convert_with_fallback(buf, -1, "utf8", "gbk", "?", NULL, NULL, NULL);
+				snprintf(buf, sizeof(buf),"%s",location);
+				g_free(location);
+				
+				/* show the ip location under current line which has the ip address
+				 * note: the unit of x,y is linecol,we need to convert it back to point unit
+				 */
+				gint xx = m_ipLookupArea.x;
+				gint yy = m_ipLookupArea.y+1;
+				this->LineColToPoint(&xx,&yy);
+
+				/* obtain the positon of the GdkWindow in root window cordinates */
+				gint ori_x,ori_y;
+				gdk_window_get_origin(m_Widget->window, &ori_x, &ori_y);
+				ori_x += xx;
+				ori_y += yy;
+
+				m_pParentFrame->PopTip(ori_x,ori_y,buf);
+			  }
+			else
+			  {
+				snprintf(buf, sizeof(buf), "%s %s (%s)"
+						 , _("Detected IP address:"), ipstr.c_str()
+						 , _("Download qqwry.dat to get IP location lookup"));
+
+				m_pParentFrame->PushStatus("show ip", buf);
+			  }
+		  }
+	  }
+	else m_pParentFrame->HideTip();
+	  
+#endif // defined(USE_IPLOOKUP)
+
   }
 #endif // !defined(MOZ_PLUGIN)
 }
@@ -587,12 +647,12 @@ void CTelnetView::DoPasteFromClipboard(string text, bool contain_ansi_color)
 		if( contain_ansi_color )
 		{
 			string esc = GetCon()->m_Site.GetEscapeChar();
-			if( m_s_CharSet != GetCon()->m_Site.m_Encoding.c_str() )
+			if( m_s_CharSet != GetCon()->GetEncoding().c_str() )
 			{
-			  INFO("Charset Conversion from %s to %s",m_s_CharSet.c_str(),GetCon()->m_Site.m_Encoding.c_str());
+			  INFO("Charset Conversion from %s to %s",m_s_CharSet.c_str(),GetCon()->GetEncoding().c_str());
 
 			  gsize convl;
-			  gchar* locale_text = g_convert(text.c_str(), text.length(),GetCon()->m_Site.m_Encoding.c_str(),m_s_CharSet.c_str(), NULL, &convl, NULL);
+			  gchar* locale_text = g_convert(text.c_str(), text.length(),GetCon()->GetEncoding().c_str(),m_s_CharSet.c_str(), NULL, &convl, NULL);
 			  if( !locale_text )
 				return;
 
@@ -628,7 +688,7 @@ void CTelnetView::DoPasteFromClipboard(string text, bool contain_ansi_color)
 			// autowrap be enabled
 			unsigned int len = 0, max_len = GetCon()->m_Site.m_AutoWrapOnPaste;
 			gsize convl;
-			gchar* locale_text = g_convert(text.c_str(), text.length(), GetCon()->m_Site.m_Encoding.c_str(), "UTF-8", NULL, &convl, NULL);
+			gchar* locale_text = g_convert(text.c_str(), text.length(), GetCon()->GetEncoding().c_str(), "UTF-8", NULL, &convl, NULL);
 			if( !locale_text )
 				return;
 			// FIXME: Convert UTF-8 string to locale string.to prevent invalid UTF-8 string

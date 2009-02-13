@@ -96,7 +96,7 @@ CSitePage::CSitePage(CSite& site)
 	gtk_widget_show (label3);
 	gtk_box_pack_start (GTK_BOX (hbox3), label3, FALSE, FALSE, 0);
 	
-	m_Reconnect_adj = gtk_adjustment_new (0, 0, 65535, 1, 10, 10);
+	m_Reconnect_adj = gtk_adjustment_new (0, 0, 65535, 1, 10, 0);
 	m_Reconnect = gtk_spin_button_new (GTK_ADJUSTMENT (m_Reconnect_adj), 1, 0);
 	gtk_widget_show (m_Reconnect);
 	gtk_box_pack_start (GTK_BOX (hbox3), m_Reconnect, FALSE, TRUE, 0);
@@ -114,7 +114,7 @@ CSitePage::CSitePage(CSite& site)
 	gtk_widget_show (label10);
 	gtk_box_pack_start (GTK_BOX (hbox6), label10, FALSE, FALSE, 0);
 	
-	m_Idle_adj = gtk_adjustment_new (0, 0, 65535, 1, 10, 10);
+	m_Idle_adj = gtk_adjustment_new (0, 0, 65535, 1, 10, 0);
 	m_Idle = gtk_spin_button_new (GTK_ADJUSTMENT (m_Idle_adj), 1, 0);
 	gtk_widget_show (m_Idle);
 	gtk_box_pack_start (GTK_BOX (hbox6), m_Idle, FALSE, TRUE, 0);
@@ -153,7 +153,7 @@ CSitePage::CSitePage(CSite& site)
 	gtk_widget_show (label22);
 	gtk_box_pack_start (GTK_BOX (hbox14), label22, FALSE, FALSE, 0);
 	
-	m_Line_adj = gtk_adjustment_new (24, 24, 96, 1, 10, 10);
+	m_Line_adj = gtk_adjustment_new (24, 24, 96, 1, 10, 0);
 	m_Line = gtk_spin_button_new (GTK_ADJUSTMENT (m_Line_adj), 1, 0);
 	gtk_widget_show (m_Line);
 	gtk_box_pack_start (GTK_BOX (hbox14), m_Line, FALSE, TRUE, 0);
@@ -162,7 +162,7 @@ CSitePage::CSitePage(CSite& site)
 	gtk_widget_show (label23);
 	gtk_box_pack_start (GTK_BOX (hbox14), label23, FALSE, FALSE, 0);
 	
-	m_Col_adj = gtk_adjustment_new (80, 40, 240, 1, 10, 10);
+	m_Col_adj = gtk_adjustment_new (80, 40, 240, 1, 10, 0);
 	m_Col = gtk_spin_button_new (GTK_ADJUSTMENT (m_Col_adj), 1, 0);
 	gtk_widget_show (m_Col);
 	gtk_box_pack_start (GTK_BOX (hbox14), m_Col, FALSE, TRUE, 0);
@@ -199,7 +199,7 @@ CSitePage::CSitePage(CSite& site)
 	gtk_widget_show (label24);
 	gtk_box_pack_start (GTK_BOX (hbox15), label24, FALSE, FALSE, 0);
 	
-	m_PasteWrap_adj = gtk_adjustment_new (78, 0, 100, 1, 10, 10);
+	m_PasteWrap_adj = gtk_adjustment_new (78, 0, 100, 1, 10, 0);
 	m_PasteWrap = gtk_spin_button_new (GTK_ADJUSTMENT (m_PasteWrap_adj), 1, 0);
 	gtk_widget_show (m_PasteWrap);
 	gtk_box_pack_start (GTK_BOX (hbox15), m_PasteWrap, FALSE, TRUE, 0);

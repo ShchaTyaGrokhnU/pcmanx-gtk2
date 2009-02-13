@@ -76,6 +76,11 @@ QQWRYSEEKER_SOURCES = \
 	qqwryseeker/qqwryseeker.c qqwryseeker/qqwryseeker.h
 endif
 
+if USE_PROXY
+PROXY_VIEW_SOURCES = \
+       proxypage.cpp proxypage.h
+endif
+
 pcmanx_SOURCES = \
 	$(DOCKLET_SOURCES) \
 	$(NOTIFIER_SOURCES) \
@@ -83,6 +88,7 @@ pcmanx_SOURCES = \
 	$(NANCY_SOURCES) \
 	$(VIEW_IMPLEMENTATION_SOURCES) \
 	$(QQWRYSEEKER_SOURCES) \
+	$(PROXY_VIEW_SOURCES) \
 	appconfig.cpp appconfig.h \
 	notebook.cpp notebook.h \
 	sitelistdlg.cpp sitelistdlg.h \

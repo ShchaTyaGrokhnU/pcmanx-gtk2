@@ -36,6 +36,9 @@
 
 using namespace std;
 
+/**
+ * CSite
+ */
 class CSite
 {
 public:
@@ -96,14 +99,7 @@ public:
 	bool m_bHorizontalCenterAlign;
 	bool m_bVerticalCenterAlign;
 
-#ifdef USE_PROXY
-	// Proxy settings
-	int    m_ProxyType;
-	string m_ProxyAddr;
-	int    m_ProxyPort;
-	string m_ProxyUser;
-	string m_ProxyPass;
-#endif
+
 
 	X_EXPORT CSite(string Name = "");
 	X_EXPORT ~CSite();
@@ -129,6 +125,30 @@ public:
 	string& GetPostLogin(){	return m_PostLogin;	}
     void SetPostLogin(string postlogin){	m_PostLogin = postlogin;	}
 
+#ifdef USE_PROXY
+	// Proxy settings
+	int    m_ProxyType;
+	string m_ProxyAddr;
+	int    m_ProxyPort;
+	string m_ProxyUser;
+	string m_ProxyPass;
+
+    int GetProxyType(){	return m_ProxyType;	}
+    void SetProxyType( int proxytype ){	m_ProxyType = proxytype;	}
+
+	string& GetProxyAddr(){	return m_ProxyAddr;	}
+    void SetProxyAddr(string proxyaddr){	m_ProxyAddr = proxyaddr;	}
+	
+    int GetProxyPort(){	return m_ProxyPort;	}
+    void SetProxyPort( int proxyport ){	m_ProxyPort = proxyport;	}
+	
+	string& GetProxyUser(){	return m_ProxyUser;	}
+    void SetProxyUser(string proxyaddr){	m_ProxyUser = proxyaddr;	}
+
+	string& GetProxyPass(){	return m_ProxyPass;	}
+    void SetProxyPass(string proxypass){	m_ProxyPass = proxypass;	}
+#endif
+
 protected:
     string m_Passwd;
     string m_Login;
@@ -137,6 +157,7 @@ protected:
     string m_PreLogin;
     string m_PreLoginPrompt;
 	string m_PostLogin;
+
 };
 
 #endif // !defined(PCMANX_SITE_H)

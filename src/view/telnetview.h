@@ -42,7 +42,7 @@ friend class CMainFrame;
 public:
     CTelnetView();
     ~CTelnetView();
-
+	
     void OnTextInput(const gchar* text);
     void OnHyperlinkClicked(string url);
     CTelnetCon* GetCon(){  return (CTelnetCon*)m_pTermData;  }
@@ -59,6 +59,7 @@ public:
 #endif
 
 protected:
+	void AfterUpdate();
     bool OnKeyDown(GdkEventKey* evt);
 protected:
     void OnMouseMove(GdkEventMotion* evt);
@@ -76,6 +77,7 @@ protected:
     static CMainFrame* m_pParentFrame;
 #if defined(USE_IPLOOKUP)
     QQWrySeeker *m_pIpSeeker;
+	GdkRectangle m_ipLookupArea;
 #endif
 #endif /* !defined(MOZ_PLUGIN) */
     static string m_WebBrowser;

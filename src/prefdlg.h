@@ -25,13 +25,17 @@
 
 #include "dialog.h"
 
-/**
-@author PCMan
-*/
+
 class CNotebook;
 class CSitePage;
 class CGeneralPrefPage;
+#ifdef USE_PROXY
+class CProxyPage;
+#endif
 
+/**
+@author PCMan
+*/
 class CPrefDlg : public CDialog
 {
 public:
@@ -42,6 +46,9 @@ public:
     CSitePage* m_pSitePage;
     CNotebook* m_pNotebook;
 	CGeneralPrefPage* m_pGeneralPrefPage;
+#ifdef USE_PROXY
+	CProxyPage* m_pProxyPage;
+#endif   
 };
 
 #endif

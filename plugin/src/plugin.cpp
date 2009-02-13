@@ -285,7 +285,7 @@ void nsPluginInstance::NewCon()
 	m_pCon->m_Site.m_Name = "";
 	m_pCon->m_Site.m_URL = m_URL;
 //	g_print("url = %s\n", m_URL.c_str());
-	m_pCon->m_Encoding = m_pCon->m_Site.m_Encoding;
+	m_pCon->SetEncoding(m_pCon->m_Site.m_Encoding);
 
 	m_pCon->AllocScreenBuf( site.m_RowsPerPage, site.m_RowsPerPage, site.m_ColsPerPage );
 

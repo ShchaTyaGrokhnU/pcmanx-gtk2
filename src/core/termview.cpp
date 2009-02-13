@@ -109,6 +109,7 @@ GdkCursor* CTermView::m_PageDownCursor = NULL;
 GdkCursor* CTermView::m_PageUpCursor = NULL;
 GdkCursor* CTermView::m_EndCursor = NULL;
 GdkCursor* CTermView::m_HomeCursor = NULL;
+
 int CTermView::m_CursorState = 0;
 
 CTermView::CTermView()
@@ -189,7 +190,6 @@ CTermView::CTermView()
 	  gdk_cursor_ref(m_HomeCursor);
 	else
 	  m_HomeCursor = gdk_cursor_new_for_display(gdk_display_get_default(), GDK_TOP_SIDE);
-
 }
 
 
@@ -554,6 +554,12 @@ int CTermView::DrawChar(int row, int col)
 	XftDrawSetClip( m_XftDraw, NULL );
 
 	return is_mbcs2 ? 1 : w;
+}
+
+void CTermView::LineColToPoint(int *x, int *y)
+{
+  *x = *x * m_CharW + m_LeftMargin ;
+  *y = *y * m_CharH + m_TopMargin ;
 }
 
 void CTermView::PointToLineCol(int *x, int *y, bool *left)
@@ -1033,6 +1039,10 @@ void CTermView::UpdateCaretPos()
 	gtk_im_context_set_cursor_location(m_IMContext, &rc);
 }
 
+void CTermView::AfterUpdate()
+{
+  
+}
 
 bool CTermView::HyperLinkHitTest(int x, int y, int* start, int* end)
 {

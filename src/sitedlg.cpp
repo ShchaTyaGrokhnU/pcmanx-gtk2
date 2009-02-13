@@ -25,6 +25,10 @@
 #include "autologinpage.h"
 #include "notebook.h"
 
+#ifdef USE_PROXY
+#include "proxypage.h"
+#endif
+
 CSiteDlg::CSiteDlg(CWidget* parent, const char* title, CSite& site)
  : CDialog(parent, title, true), m_Site(site)
 {
@@ -37,6 +41,10 @@ CSiteDlg::CSiteDlg(CWidget* parent, const char* title, CSite& site)
 
 	m_pNotebook->AddPage( m_pSitePage, _("Site Settings"), NULL);
 	m_pNotebook->AddPage( m_pAutoLoginPage, _("Auto Login"), NULL);
+#ifdef USE_PROXY
+	m_pProxyPage = new CProxyPage(m_Site);
+	m_pNotebook->AddPage( m_pProxyPage, _("Proxy Settings"), NULL);
+#endif
 
 	gtk_box_pack_start( GTK_BOX (dlg->vbox), m_pNotebook->m_Widget, FALSE, FALSE, 4);
 
@@ -46,5 +54,9 @@ CSiteDlg::CSiteDlg(CWidget* parent, const char* title, CSite& site)
 
 bool CSiteDlg::OnOK()
 {
+#ifdef USE_PROXY
+	return (m_pSitePage->OnOK() && m_pAutoLoginPage->OnOK() &&  m_pProxyPage->OnOK());
+#else
 	return (m_pSitePage->OnOK() && m_pAutoLoginPage->OnOK());
+#endif
 }

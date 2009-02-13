@@ -139,6 +139,10 @@ public:
 	static void SetSocketTimeout(int timeout){	m_SocketTimeout=timeout;	}
     bool DetectDBChar(){	return m_Site.m_DetectDBChar;   }
     void ConnectAsync();
+	//Todo:update m_Site.m_Encoding in config file.here simple changing its value
+	//will not get saved after exit
+	void SetEncoding(string encoding) {m_Encoding = encoding;m_Site.m_Encoding = encoding;}
+	string GetEncoding(){return m_Encoding;}
 
     static void Init();
 #if !defined(MOZ_PLUGIN)

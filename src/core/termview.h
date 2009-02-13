@@ -51,6 +51,7 @@ public:
     virtual bool OnKeyDown(GdkEventKey* evt);
     virtual void OnTextInput(const gchar* string);
     int DrawChar(int row, int col);
+	void LineColToPoint(int *x, int *y);
     void PointToLineCol(int *x, int *y, bool *left = NULL);
 
     GtkIMContext* m_IMContext;
@@ -88,6 +89,7 @@ protected:
     void OnKillFocus(GdkEventFocus *evt);
 	static void OnBeforeDestroy( GtkWidget* widget, CTermView* _this);
     void UpdateCaretPos();
+	virtual void AfterUpdate();
     bool HyperLinkHitTest(int x, int y, int* start, int* end);
     void OnDestroy();
     void RecalcCharDimension();
@@ -136,7 +138,6 @@ protected:
     static GdkCursor* m_PageUpCursor;
     static GdkCursor* m_EndCursor;
     static GdkCursor* m_HomeCursor;
-
     // Mouse Cursor State for Click Behaviour
     // Hand=-1, Normal=0, Exit=1, BullsEye=2, PageDown=3, PageUp=4, End=5, Home=6
     static int m_CursorState;
