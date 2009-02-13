@@ -646,40 +646,27 @@ void CTelnetView::DoPasteFromClipboard(string text, bool contain_ansi_color)
 		string text2;
 		if( contain_ansi_color )
 		{
-			string esc = GetCon()->m_Site.GetEscapeChar();
-			if( m_s_CharSet != GetCon()->GetEncoding().c_str() )
-			{
-			  INFO("Charset Conversion from %s to %s",m_s_CharSet.c_str(),GetCon()->GetEncoding().c_str());
+		  const char* crlf = GetCon()->m_Site.GetCRLF();
+		  string esc       = GetCon()->m_Site.GetEscapeChar();
 
+		  if( m_s_CharSet != GetCon()->GetEncoding().c_str() )
+			{
 			  gsize convl;
 			  gchar* locale_text = g_convert(text.c_str(), text.length(),GetCon()->GetEncoding().c_str(),m_s_CharSet.c_str(), NULL, &convl, NULL);
 			  if( !locale_text )
 				return;
-
-			  const char* p = locale_text;
-			  while(*p)
-			  {
-				if(*p == '\x1b')
-					text2 += esc;
-				else
-					text2 += *p;
-				p++;
-			  }
+			  text = string(locale_text);
 			  g_free(locale_text);
 			}
+
+		  for(const char* p = text.c_str();*p;++p)
+			if(*p == '\x1b')
+			  text2 += esc;
+			else if(*p == '\n')
+			  text2 += crlf;
 			else
-			{
-				INFO("color text: %s",text.c_str());
-				const char* p = text.c_str();
-				while(*p)
-				{
-					if(*p == '\x1b')
-						text2 += esc;
-					else
-						text2 += *p;
-					p++;
-				}
-			}
+			  text2 += *p;
+
 			GetCon()->SendRawString(text2.c_str(),text2.length());
 		}
 		else
