@@ -1,8 +1,10 @@
 *.in
+*.so
 *.[oa]
 *.l[oa]
 *.libs
 *.gmo
+*.log
 *~
 config.*
 cscope.*
@@ -25,3 +27,5 @@ po/POTFILES
 po/stamp-it
 stamp-h1
 src/pcmanx
+*-stamp
+debian/tmp
