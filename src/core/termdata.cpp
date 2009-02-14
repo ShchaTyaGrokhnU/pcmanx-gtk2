@@ -783,11 +783,6 @@ void CTermData::UpdateDisplay()
 	m_NeedDelayedUpdate = false;
 }
 
-/**
- * if force is true then update View  even if  term data has not changed
- * it's necessary when user temporarily changes site's encoding.
- * default is false.
- */
 void CTermData::DoUpdateDisplay()
 {
 	m_WaitUpdateDisplay = false;
