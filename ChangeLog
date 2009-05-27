@@ -1,3 +1,38 @@
+2009-05-16  Jim Huang  <jserv@0xlab.org>
+
+	* src/core/widget.cpp (CWidget::Refresh): Do not call
+	gdk_window_invalidate_rect on a non-realized GtkWidget.
+
+2009-05-16  Jim Huang  <jserv@0xlab.org>
+
+	* src/mainframe.cpp
+	(CMainFrame::OnPreference): Fix dangling else.
+	(CMainFrame::OnJumpToPage): Proper casting for INFO.
+
+	* src/notebook.cpp (CNotebook::AddPage): Ditto.
+
+2009-05-16  Jim Huang  <jserv@0xlab.org>
+
+	* src/mainframe.cpp (CMainFrame::OnCloseCon): Use CNotebook wrapper
+	interface rather than explicitly casting.
+	Patched by Chih-Min Chao <cmchao@gmail.com>.
+
+2009-05-16  Jim Huang  <jserv@0xlab.org>
+
+	* src/nancy_bot/msgdata.cpp: Fix inclusion to make g++ 4.4 happy.
+
+2009-05-16  Jim Huang  <jserv@0xlab.org>
+
+	* src/mainframe.cpp (CMainFrame::OnNotebookPopupMenu): Avoid memory
+	leak when event is not mouse right-click and  unnecessary resource
+	re-allocation.
+	Patched by Chih-Min Chao <cmchao@gmail.com>.
+
+2009-02-18  Jason Xia  <jasonxh@gmail.com>
+
+	* po/POTFILES.in, po/zh_CN.po, po/zh_TW.po: Update po files. Fix
+	Simplified Chinese translation of "Line" and "Col".
+
 2009-02-07  Youchen Lee  <copyleft@utcr.org>
 
 	* src/mainframe.cpp: For availability to build under (gtk+ < 2.10),

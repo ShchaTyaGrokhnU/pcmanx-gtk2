@@ -10,3 +10,4 @@ src/emoticondlg.cpp
 src/autologinpage.cpp
 src/downarticledlg.cpp
 src/proxypage.cpp
+src/pcmanx_gtk2.cpp
