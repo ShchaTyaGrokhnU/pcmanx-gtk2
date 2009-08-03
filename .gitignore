@@ -34,3 +34,5 @@ debian/pcmanx-gtk2*
 plugin/src/pcmanx_interface.h
 plugin/src/pcmanx_interface.xpt
 plugin/data/TelnetProtocol.js
+BROWSE
+html
