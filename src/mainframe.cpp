@@ -327,7 +327,8 @@ GtkActionEntry CMainFrame::m_ActionEntries[] =
     // Fullscreen Mode
     {"fullscreen", NULL, _("F_ullscreen Mode"), "<ALT>Return", NULL, G_CALLBACK (CMainFrame::OnFullscreenMode)},
     // Simple Mode
-    {"simple", NULL, _("_Simple Mode"), "<Shift>Return", NULL, G_CALLBACK (CMainFrame::OnSimpleMode)}
+    {"simple", NULL, _("_Simple Mode"), "<Shift>Return", NULL, G_CALLBACK (CMainFrame::OnSimpleMode)},
+	{"change_encoding", NULL, _("_Character Encoding"), NULL, NULL,NULL}
   };
 
 GtkToggleActionEntry CMainFrame::m_ToggleActionEntries[] =
@@ -337,6 +338,13 @@ GtkToggleActionEntry CMainFrame::m_ToggleActionEntries[] =
     {"showhide", NULL, _("Show _Main Window"), "<Alt>M", NULL, G_CALLBACK(CMainFrame::OnShowHide), true}
 #endif
 };
+
+GtkRadioActionEntry CMainFrame::encoding_entries[] =
+  {
+    {"change_encoding_to_big5", NULL, _("Traditional Chinese(Big5)"), NULL, NULL, 0},
+    {"change_encoding_to_gbk", NULL, _("Simplified Chinense(GBK)"), NULL, NULL, 1},
+    {"change_encoding_to_utf8", NULL, _("Unicode(UTF-8)"), NULL, NULL, 2}
+  };
 
 #ifdef USE_NANCY
 GtkRadioActionEntry CMainFrame::cur_bot_entries[] =
@@ -397,6 +405,11 @@ static const char *ui_info =
 #endif
   "      <menuitem action='fullscreen' />"
   "      <menuitem action='simple' />"
+  "      <menu action='change_encoding'>"
+  "        <menuitem action='change_encoding_to_big5'/>"
+  "        <menuitem action='change_encoding_to_gbk'/>"
+  "        <menuitem action='change_encoding_to_utf8'/>"
+  "      </menu>"
 #ifdef USE_NANCY
   "      <separator/>"
   "      <menu action='cur_bot_menu'>"
@@ -485,6 +498,15 @@ void CMainFrame::MakeUI()
 				     this);
 #endif
 
+ 
+  gtk_action_group_add_radio_actions(m_ActionGroup,
+				     encoding_entries,
+				     G_N_ELEMENTS(encoding_entries),
+				     0,
+				     G_CALLBACK (CMainFrame::OnChangeEncoding),
+				     this);
+
+
   m_UIManager = gtk_ui_manager_new();
   gtk_ui_manager_insert_action_group(m_UIManager, m_ActionGroup, 0);
 
@@ -519,6 +541,13 @@ void CMainFrame::MakeUI()
 		       "/ui/menubar/view_menu/all_bot_menu/nancy_bot_all"));
 
 #endif
+
+  m_EncodingRadioBig5 =  (GtkRadioMenuItem*) gtk_ui_manager_get_widget (m_UIManager,
+       			 "/ui/menubar/view_menu/change_encoding/change_encoding_to_big5");
+  m_EncodingRadioGBK =  (GtkRadioMenuItem*) gtk_ui_manager_get_widget (m_UIManager,
+       			 "/ui/menubar/view_menu/change_encoding/change_encoding_to_gbk");
+  m_EncodingRadioUTF8 =  (GtkRadioMenuItem*) gtk_ui_manager_get_widget (m_UIManager,
+       			 "/ui/menubar/view_menu/change_encoding/change_encoding_to_utf8");
 
   GtkWidget* jump = gtk_ui_manager_get_widget (m_UIManager, "/ui/menubar/connect_menu/jump");
   
@@ -1425,7 +1454,7 @@ void CMainFrame::SetCurView(CTelnetView* view)
 #ifdef USE_NANCY
 	UpdateBotStatus();
 #endif
-
+	UpdateEncodingRadio();
 }
 
 void CMainFrame::OnSelectAll(GtkMenuItem* mitem UNUSED, CMainFrame* _this)
@@ -1436,6 +1465,37 @@ void CMainFrame::OnSelectAll(GtkMenuItem* mitem UNUSED, CMainFrame* _this)
 		con->m_Sel->SelectPage();
 		_this->GetCurView()->Refresh();
 	}
+}
+
+void CMainFrame::OnChangeEncoding(GtkRadioAction *action UNUSED,
+								  GtkRadioAction *current,
+								  CMainFrame* _this)
+{
+  CTelnetCon* con = _this->GetCurCon();
+  if (!con) return ;
+  gint cur_idx = gtk_radio_action_get_current_value(current);
+  switch(cur_idx)
+   	{
+   	case 0 : con->m_Encoding = "Big5" ;break;
+   	case 1 : con->m_Encoding = "GBK" ;break;	
+   	case 2 : con->m_Encoding = "UTF-8";
+   	}
+  
+  con->GetView()->Refresh();
+  _this->UpdateEncodingRadio();
+}
+
+void CMainFrame::UpdateEncodingRadio()
+{
+  CTelnetCon* con = GetCurCon();
+  if (!con) return ;
+  string current_encoding = GetCurCon()->m_Encoding;
+  if(current_encoding == "Big5")
+  	gtk_check_menu_item_set_active((GtkCheckMenuItem*)m_EncodingRadioBig5,true);
+  else if(current_encoding == "GBK")
+  	gtk_check_menu_item_set_active((GtkCheckMenuItem*)m_EncodingRadioGBK,true);
+  else if(current_encoding == "UTF-8")
+  	gtk_check_menu_item_set_active((GtkCheckMenuItem*)m_EncodingRadioUTF8,true);
 }
 
 void CMainFrame::LoadStartupSites()

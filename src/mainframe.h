@@ -67,6 +67,7 @@ public:
 	static void updateBBSListHandler(int nSignalNumber);
 #endif
 	static void pasteFromClipboard(GtkMenuItem* mitem, CMainFrame* _this);
+	static void OnChangeEncoding(GtkRadioAction* action,GtkRadioAction* current,CMainFrame* _this);
 	static void OnCloseCon(GtkMenuItem* mitem, CMainFrame* _this);
 	static void OnCopy(GtkMenuItem* mitem, CMainFrame* _this);
 	static void OnCopyWithColor(GtkMenuItem* mitem, CMainFrame* _this);
@@ -148,6 +149,9 @@ protected:
 	void FlashWindow( bool flash );
 	static gboolean OnURLEntryKillFocus(GtkWidget* entry, GdkEventFocus* evt, CMainFrame* _this);
 
+	static GtkRadioActionEntry encoding_entries[];
+	void UpdateEncodingRadio();
+
 #ifdef USE_NANCY
 	static GtkRadioActionEntry cur_bot_entries[];
 	static GtkRadioActionEntry all_bot_entries[];
@@ -203,6 +207,10 @@ protected:
 	GtkRadioMenuItem* m_DisableAllBotRadio;
 	GtkRadioMenuItem* m_AllBotNancyRadio;
 #endif
+
+	GtkRadioMenuItem* m_EncodingRadioBig5;
+	GtkRadioMenuItem* m_EncodingRadioGBK;
+	GtkRadioMenuItem* m_EncodingRadioUTF8;
 
 	static bool g_bIsUpateHandlerExisted;
 	static bool g_bUpdateingBBSList;
