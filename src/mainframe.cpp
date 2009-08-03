@@ -711,7 +711,8 @@ void CMainFrame::OnFont(GtkMenuItem* mitem UNUSED, CMainFrame* _this)
 		g_free( name );
 		const char* family = pango_font_description_get_family(desc);
 		AppConfig.FontFamily = family;
-		AppConfig.FontSize = pango_font_description_get_size(desc);
+		AppConfig.FontSize =
+			pango_font_description_get_size(desc) / PANGO_SCALE;
 		pango_font_description_free(desc);
 
 		if( gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON(apply_to_all) ) )
@@ -763,7 +764,8 @@ void CMainFrame::OnFontEn(GtkMenuItem* mitem UNUSED, CMainFrame* _this)
 		g_free( name );
 		const char* family = pango_font_description_get_family(desc);
 		AppConfig.FontFamilyEn = family;
-		AppConfig.FontSizeEn = pango_font_description_get_size(desc);
+		AppConfig.FontSizeEn =
+			pango_font_description_get_size(desc) / PANGO_SCALE;
 		pango_font_description_free(desc);
 
 		if( gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON(apply_to_all) ) )
@@ -1072,7 +1074,7 @@ void CMainFrame::OnSiteList(GtkMenuItem* mitem UNUSED, CMainFrame* _this)
 void CMainFrame::OnJumpToPage(GObject* obj, CMainFrame* _this)
 {
 	INFO("On jump to, obj=%x, _this->m_JumpTos[0]=%x",
-		(unsigned int) obj, (unsigned int) _this->m_JumpTos[0]);
+	     (word_t) obj, (word_t) _this->m_JumpTos[0]);
 	for( int i = 0; i < 10; ++i )
 		if( obj == _this->m_JumpTos[i] )
 		{
@@ -1140,10 +1142,11 @@ void CMainFrame::OnNotebookChangeCurPage(GtkNotebook* widget UNUSED,
 
 gboolean CMainFrame::OnNotebookPopupMenu(GtkWidget *widget UNUSED,
                                          GdkEventButton *event,
-                                         gpointer p_mainframe)
+                                         CMainFrame* _this)
 {
 	/* initialized once */
-       static GtkWidget *menu = NULL;
+	static GtkWidget *menu = NULL;
+	static GtkWidget *menu_item_close = NULL;
 
 	if (menu == NULL) {
 		// set menu items
@@ -1184,13 +1187,21 @@ gboolean CMainFrame::OnNotebookPopupMenu(GtkWidget *widget UNUSED,
 		// signals
 		g_signal_connect ( G_OBJECT(menu_item_reconnect), "activate",
 		                G_CALLBACK (CMainFrame::OnReconnect),
-		                p_mainframe);
+		                _this);
 		g_signal_connect ( G_OBJECT(menu_item_close), "activate",
 		                G_CALLBACK (CMainFrame::OnCloseCon),
-		                p_mainframe);
+		                _this);
 		g_signal_connect ( G_OBJECT(menu_item_add2fav), "activate",
 		                G_CALLBACK (CMainFrame::OnAddToFavorites),
-		                p_mainframe);
+		                _this);
+	}
+
+	// Feature: let mouse middle click be able to close tab
+	// similar to the behavior under Firefox
+	if (AppConfig.MidClickAsClose &&
+	    event->type == GDK_BUTTON_PRESS && event->button == 2) {
+		_this->OnCloseCon(GTK_MENU_ITEM(menu_item_close), _this);
+		return TRUE;
 	}
 
 	// if not right check the mouse
@@ -1577,7 +1588,7 @@ gboolean CMainFrame::OnURLEntryKillFocus(GtkWidget* entry,
 
 int CMainFrame::GetViewIndex(CTermView* view)
 {
-	DEBUG( "get view index, view = %x", (unsigned int) view );
+	DEBUG( "get view index, view = %x", (word_t) view );
 	if( !view )
 		return -1;
 	DEBUG( "view->m_Widget = %x", (unsigned int) view->m_Widget );
